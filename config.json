@@ -1,0 +1,19 @@
+{
+    "dev": false,
+    "cacheTimeOut": 5, 
+    "compressJS": true,
+    "compressCSS": true, 
+    "apiKeys":[], 
+    "pathSets":[
+        {
+            "rootPath":"/www",
+            "cssRootPath":"/css/",
+            "jsRootPath":"/js/"
+        },
+        {
+            "rootPath":"/data/static",
+            "cssRootPath":"/css/",
+            "jsRootPath":"/js/"
+        }
+    ]
+}
