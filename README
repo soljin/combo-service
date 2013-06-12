@@ -1,0 +1,45 @@
+Combo JS & CSS
+--------------
+
+This app is designed to work with express. Either on it's own or as a dependency that can be passed a express instance.
+
+If run as a stand alone service you can configure the app via config.json.
+
+If running as a dependency you can pass in similar params as an object. Like this:
+
+    var express = require("express);
+        combo = require("combo-js-css");
+        app = express();
+    
+    combo.bindComboService(app, {
+        /* These can be configured per request with qquery params */
+        "dev": false,
+        "cacheTimeOut": 5, 
+        "compressJS": true,
+        "compressCSS": true,
+        
+        /* These are set once configs that define the routing */
+        "port":8080,
+        "baseComboPath":"/combo",
+        "jsComboPath":"/js/",
+        "cssComboPath":"/css/",
+        
+        /* 
+        *  For every path recieved on either the js or css combo the service
+        *  will look in the these paths for a match before giving up.
+        *  This is the most crucial configuration.
+        */
+        "pathSets":[
+            
+            {
+                "rootPath":"/www",
+                "cssRootPath":"/css/",
+                "jsRootPath":"/js/"
+            },
+            {
+                "rootPath":"/data/static",
+                "cssRootPath":"/css/",
+                "jsRootPath":"/js/"
+            }
+        ]
+    });
