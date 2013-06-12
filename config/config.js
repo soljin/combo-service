@@ -1,5 +1,4 @@
-var mysql = require("mysql")
-    fs = require("fs");
+var fs = require("fs");
 
 var types = {
         CSS: "CSS",
