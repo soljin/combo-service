@@ -62,17 +62,23 @@ function comboReq(req, res, type, config){
             }else if(err){
                 writeFile("404","/* File not found: "+partialPath+" */");
             }else{
-                fileHashKey = getFileHashKey(resolvedPath, doCompress());
-
-                if(!reqOptions.dev && cacheCheck(fileHashKey)){
-                    console.log("Serving from cache: "+resolvedPath);
-                    writeFile(null, cache[fileHashKey].content);
-                }else{
-                    console.log("Setting up cache: "+resolvedPath);
-                    setupCache(resolvedPath, fileHashKey, function(){
-                        writeFile(null, cache[fileHashKey].content);
-                    });
-                }
+                fs.realpath(getBasePath(pathSetIndex), function(err, fullBasePath){
+                    if(resolvedPath.indexOf(fullBasePath) === 0){
+                        fileHashKey = getFileHashKey(resolvedPath, doCompress());
+        
+                        if(!reqOptions.dev && cacheCheck(fileHashKey)){
+                            console.log("Serving from cache: "+resolvedPath);
+                            writeFile(null, cache[fileHashKey].content);
+                        }else{
+                            console.log("Setting up cache: "+resolvedPath);
+                            setupCache(resolvedPath, fileHashKey, function(){
+                                writeFile(null, cache[fileHashKey].content);
+                            });
+                        }
+                    }else{
+                        writeFile("403","/* File out of root: "+partialPath+" */");
+                    }
+                });
             }
         }
 
@@ -186,9 +192,15 @@ function compressJS(str){
 }
 
 function compressCSS(cssStr){
-    var compressedCSSStr = cssmin(cssStr);
+    var compressedCSSStr;
+    
+    try{
+        compressedCSSStr = cssmin(cssStr);
+    }catch(e){
+        console.log("Error compressing css.");
+    }
 
-    return compressedCSSStr;
+    return compressedCSSStr || cssStr;
 }
 
 function extractFilePaths(query){

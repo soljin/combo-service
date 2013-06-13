@@ -6,11 +6,16 @@ exports.bindComboService = function(app, params){
     config.updateConfigFromParams(params);
     
     // Routes
-    app.get(config.baseComboPath+config.jsComboPath, function(req, res){
+    console.log("Combo Service binding path: "+config.config.baseComboPath+config.config.jsComboPath);
+    app.get(config.config.baseComboPath+config.config.jsComboPath, function(req, res){
         combo.comboReq(req, res, config.types.JS, config);
     });
     
-    app.get(config.baseComboPath+config.cssComboPath, function (req, res) {
+    console.log("Combo Service binding path: "+config.config.baseComboPath+config.config.cssComboPath);
+    app.get(config.config.baseComboPath+config.config.cssComboPath, function (req, res) {
         combo.comboReq(req, res, config.types.CSS, config);
     });
 };
+
+exports.combo = combo;
+exports.config = config;
