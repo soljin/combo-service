@@ -12,6 +12,8 @@ var types = {
     },
     config = {
         port:8080,
+        staticDescriptors:null,
+        staticStore:null,
         baseComboPath:"/combo",
         jsComboPath:"/js/",
         cssComboPath:"/css/",

@@ -31,9 +31,6 @@ function comboReq(req, res, type, config){
         reqOptions = extractOptions(config.options, req.query, true),
         reqConfig = config.config;
 
-    console.log(req.query);
-    console.log(reqOptions);
-
 
     res.header("Content-Type", type == config.types.JS ? "application/javascript" : "text/css");
     res.header("Expires", new Date(new Date().getTime() + reqOptions.cacheTimeOut * 60 * 1000));
@@ -48,11 +45,33 @@ function comboReq(req, res, type, config){
 
 
     function processFiles(partialPath){
-            var pathSetIndex = 0,
-                path = getBasePath(pathSetIndex) + partialPath,
-                fileHashKey;
+        var pathSetIndex = 0,
+            path = getBasePath(pathSetIndex) + partialPath,
+            fileHashKey,
+            name,
+            nameBase,
+            staticContent;
+            
+        if(reqConfig.staticStore && partialPath){
+            name = partialPath
+                        .split("/").pop();
+            nameBase = name
+                        .split(type == config.types.JS ? ".js" : ".css")[0];
+                        
+            staticContent = 
+                reqConfig.staticStore[name] ||
+                reqConfig.staticStore[nameBase] ||
+                reqConfig.staticStore[nameBase+"-"];
 
+            if(staticContent){
+                console.log(name);
+                writeFile(null, staticContent);
+            }else{
+                fs.realpath(path, checkPath);
+            }
+        }else{
             fs.realpath(path, checkPath);
+        }
 
         function checkPath(err, resolvedPath){
             if(err && pathSetIndex < reqConfig.pathSets.length - 1){
@@ -111,25 +130,26 @@ function comboReq(req, res, type, config){
             cache[fileHashKey] = new CacheItem(fullPath, compress);
         }
         getFileHashAndContents(fullPath, function(hash, content){
-             if(cache[fileHashKey].hash === hash && cache[fileHashKey].compressed === compress){
-                 updateCache(cache[fileHashKey]);
-                 cb();
-             }else{
-                 if( compress && !fullPath.match(/\-min\.js$/) ){
-                     if(type == config.types.JS){
-                         cache[fileHashKey].content = compressJS(content);
-                     }else{
-                         cache[fileHashKey].content = compressCSS(content);
-                     }
-                 }else{
-                     cache[fileHashKey].content = content;
-                 }
-
-                 cache[fileHashKey].hash = hash;
-                 updateCache(cache[fileHashKey]);
-
-                 cb();
-             }
+            if(cache[fileHashKey].hash === hash && cache[fileHashKey].compressed === compress){
+                updateCache(cache[fileHashKey]);
+                cb();
+            }else{
+                if( compress && !fullPath.match(/\-min\.js$/) ){
+                    if(type == config.types.JS){
+                        cache[fileHashKey].content = compressJS(content);
+                    }else{
+                        cache[fileHashKey].content = compressCSS(content);
+                    }
+                }else{
+                    cache[fileHashKey].content = content;
+                }
+                    
+                cache[fileHashKey].hash = hash;
+                updateCache(cache[fileHashKey]);
+                
+                cb();
+            
+            }
         });
     }
 
